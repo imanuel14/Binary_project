@@ -12,27 +12,54 @@ use App\Models\ChurchProfile; // Pastikan model ini sudah dibuat
 class UserDashboardController extends Controller
 {
     public function index()
-    {
-        $user = Auth::guard('web')->user();
+{
+    $user = Auth::guard('web')->user();
 
-        if (!$user) {
-            return redirect()->route('login');
-        }
-
-        // Statistik untuk Dashboard
-        $stats = [
-            'total_programs'  => Program::count(),
-            'total_contacts'  => Contact::count(),
-            'unread_contacts' => Contact::where('status', 'unread')->count(), // Sesuaikan nama kolom status Anda
-        ];
-
-        // Ambil 5 aktivitas terbaru (Contoh jika menggunakan tabel log)
-        // Jika belum ada tabel log, biarkan array kosong agar @forelse di Blade tidak error
-        $activities = []; 
-
-        return view('user.dashboard', compact('user', 'stats', 'activities'));
+    if (!$user) {
+        return redirect()->route('login');
     }
 
+    // 1. Ambil data statistik
+    $totalPrograms = \App\Models\Program::count();
+    $totalContacts = \App\Models\Contact::count();
+    $totalUnread   = \App\Models\Contact::where('status', 'unread')->count();
+
+    $stats = [
+        'total_programs' => $totalPrograms,
+        'total_contacts' => $totalContacts,
+        'unread_contacts' => $totalUnread,
+    ];
+
+    // 2. Ambil data untuk tabel dan aktivitas
+    $recentContacts = \App\Models\Contact::latest()->limit(5)->get();
+    
+    // SOLUSI: Definisikan $activities agar View di baris 150 tidak error
+    // Kita gunakan data recentContacts sebagai 'aktivitas' terbaru
+    $activities = $recentContacts; 
+
+    // 3. Ambil data untuk dropdown notifikasi
+    $unreadMessages = \App\Models\Contact::where('status', 'unread')
+                        ->latest()
+                        ->take(3)
+                        ->get();
+
+    $notifications = [
+        'contacts' => $unreadMessages,
+    ];
+
+    // 4. Pastikan semua variabel masuk ke compact()
+    return view('user.dashboard', compact(
+        'user',
+        'stats',
+        'totalPrograms',
+        'totalContacts',
+        'totalUnread',
+        'recentContacts',
+        'activities', // Variabel baru ditambahkan di sini
+        'notifications',
+        'unreadMessages'
+    ));
+}
     /**
      * Method untuk menampilkan halaman Edit Profil Yayasan/Gereja
      * Menangani error: Method editProfile does not exist
@@ -63,7 +90,7 @@ class UserDashboardController extends Controller
         ]);
 
         $profile = ChurchProfile::first();
-        
+
         if ($profile) {
             $profile->update($request->all());
         } else {

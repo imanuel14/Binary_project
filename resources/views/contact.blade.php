@@ -25,29 +25,38 @@
                     @endif
 
                     <form action="{{ route('contact.store') }}" method="POST">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
-                                <input type="text" name="name" class="form-control form-control-lg @error('name') is-invalid @enderror" required>
-                            </div>
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold small text-muted">EMAIL</label>
-                                <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" required>
-                            </div>
-                            <div class="mb-4">
-    <label class="form-label fw-bold small text-muted">NO. TELEPON / WHATSAPP</label>
-    <input type="tel" name="phone" class="form-control form-control-lg" placeholder="Contoh: 08123456789">
-</div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-muted">PESAN</label>
-                            <textarea name="message" class="form-control form-control-lg" rows="4" placeholder="Tuliskan pesan Anda..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-dark btn-lg w-100 py-3 fw-bold transition-hover">
-                            <i class="bi bi-send-fill me-2"></i>Kirim Pesan
-                        </button>
-                    </form>
+    @csrf
+    {{-- Menentukan kategori agar masuk ke tab Ibadah di Admin --}}
+    <input type="hidden" name="category" value="ibadah">
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
+            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+        </div>
+        <div class="col-md-6 mb-4">
+            <label class="form-label fw-bold small text-muted">EMAIL</label>
+            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
+        </div>
+        <div class="mb-4">
+            <label class="form-label fw-bold small text-muted">NO. TELEPON / WHATSAPP</label>
+            <input type="tel" name="phone" class="form-control" placeholder="Contoh: 08123456789" required>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label fw-bold small text-muted">PESAN</label>
+        <textarea name="message" class="form-control" rows="4" placeholder="Tuliskan pesan Anda..." required>{{ old('message') }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-dark btn-lg w-100 py-3 fw-bold">
+        <i class="bi bi-send-fill me-2"></i>Kirim Pesan
+    </button>
+
+    @if(session('success'))
+        <div class="alert alert-success mt-3 small shadow-sm border-0">{{ session('success') }}</div>
+    @endif
+</form>
                 </div>
             </div>
         </div>

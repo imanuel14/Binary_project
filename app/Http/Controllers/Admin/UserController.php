@@ -21,32 +21,32 @@ class UserController extends Controller
         return view('admin.users.create');
     }
     // STORE
-public function store(Request $request)
-{
-    // 1. Validasi
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8',
-    ]);
+    public function store(Request $request)
+    {
+        // 1. Validasi
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+        ]);
 
-    // 2. Simpan User (Jangan lupa Hash::make agar password tidak salah!)
-    $newUser = \App\Models\User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-        'role' => 'user',
-    ]);
+        // 2. Simpan User (Jangan lupa Hash::make agar password tidak salah!)
+        $newUser = \App\Models\User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => 'user',
+        ]);
 
-    // 3. CATAT LOG AKTIVITAS
-    \App\Models\Activity::create([
-        'admin_id' => auth()->guard('admin')->id(), // ID Admin yang sedang login
-        'user_id' => $newUser->id, // ID User yang baru saja dibuat
-        'description' => 'Menambah user baru: ' . $newUser->name,
-    ]);
+        // 3. CATAT LOG AKTIVITAS
+        \App\Models\Activity::create([
+            'admin_id' => auth()->guard('admin')->id(), // ID Admin yang sedang login
+            'user_id' => $newUser->id, // ID User yang baru saja dibuat
+            'description' => 'Menambah user baru: ' . $newUser->name,
+        ]);
 
-    return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan');
-}
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan');
+    }
     public function edit($id)
     {
         $user = User::findOrFail($id);

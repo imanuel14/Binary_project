@@ -10,18 +10,18 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::table('contacts', function (Blueprint $table) {
-        $table->string('phone')->nullable()->after('email');
+{
+    Schema::table('activities', function (Blueprint $table) {
+        $table->foreignId('user_id')->nullable()->after('admin_id');
     });
-    }
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('contacts', function (Blueprint $table) {
+        Schema::table('activities', function (Blueprint $table) {
             //
         });
     }

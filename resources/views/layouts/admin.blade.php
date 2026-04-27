@@ -107,6 +107,12 @@
             </a>
         </li>
 
+        <li class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.contacts.index') }}">
+                <i class="bi bi-envelope me-2"></i> Kontak
+            </a>
+        </li>
+
         <li class="{{ request()->routeIs('admin.church-profile.*') ? 'active' : '' }}">
             <a href="{{ route('admin.church-profile.edit') }}">
                 <i class="bi bi-building me-2"></i> Profil Gereja

@@ -15,7 +15,7 @@ return new class extends Migration
         $table->string('phone')->nullable(); // Nomor WhatsApp
         
         // TAMBAHKAN KOLOM INI
-        $table->string('child_name')->nullable(); // Khusus untuk pendaftaran PAUD/Sekolah
+        // $table->string('child_name')->nullable(); // Khusus untuk pendaftaran PAUD/Sekolah
         
         $table->text('message')->nullable(); // Pesan umum (opsional)
         

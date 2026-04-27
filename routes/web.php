@@ -14,24 +14,28 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProgramController as AdminProgramController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
-use App\Http\Controllers\Admin\GalleryController as AdminGalleryController; 
+use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\ChurchProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\Admin\JemaatController;
-
+use App\Http\Controllers\ContactController as PublicContact;
+use App\Http\Controllers\Admin\ContactController as AdminContact;
 
 // ==================== PUBLIC ====================
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact/send', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/contact', [PublicContact::class, 'index'])->name('contact.index');
+Route::post('/contact/send', [PublicContact::class, 'store'])->name('contact.store');
 
 Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
 Route::get('/programs/{program}', [ProgramController::class, 'show'])->name('programs.show');
 Route::get('/programs/category/ibadah', [ProgramController::class, 'ibadah'])->name('programs.ibadah');
 Route::get('/programs/category/pendidikan', [ProgramController::class, 'pendidikan'])->name('programs.pendidikan');
+Route::post('/program/apply', [ProgramController::class, 'apply'])->name('program.apply');
 
 Route::get('/tentang/galeri', [GalleryController::class, 'index'])->name('gallery.index');
 Route::get('/tentang/galeri/{category}', [GalleryController::class, 'category'])->name('gallery.category');
@@ -67,16 +71,17 @@ Route::middleware(['auth']) // Cukup gunakan auth:web dulu untuk tes
         Route::get('/programs/{program}/edit', [ProgramController::class, 'userEdit'])->name('programs.edit');
         Route::put('/programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
         Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
+        Route::post('/program/apply', [ProgramController::class, 'apply'])->name('program.apply');
 
         // 3. Profil Gereja - JANGAN panggil Controller Admin langsung
         // Buat method edit di UserDashboardController atau buat Controller baru di folder User
         Route::get('/church-profile', [UserDashboardController::class, 'editProfile'])->name('church-profile.edit');
         Route::put('/church-profile', [UserDashboardController::class, 'updateProfile'])->name('church-profile.update');
-
         // 4. Kontak
         Route::get('/contacts', [ContactController::class, 'userIndex'])->name('contacts.index');
         Route::get('/contacts/{contact}', [ContactController::class, 'userShow'])->name('contacts.show');
         Route::delete('/contacts/{contact}', [ContactController::class, 'userDestroy'])->name('contacts.destroy');
+        Route::post('/contact/send', [ContactController::class, 'store'])->name('contact.store');
     });
 
 // ==================== ADMIN AREA ====================
@@ -87,7 +92,6 @@ Route::middleware(['auth:admin'])
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('users', UserController::class);
-
         // Satu baris Route::resource() otomatis generate 7 route (index, create, store, show, edit, update, destroy).
         Route::resource('programs', AdminProgramController::class);
         // Route::get('/programs', [ProgramController::class, 'Index'])->name('programs.index');
@@ -97,11 +101,15 @@ Route::middleware(['auth:admin'])
         // Route::put('/programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
         // Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
 
-        Route::resource('contacts', AdminContactController::class);
+
+        Route::resource('contacts', AdminContact::class);
+
         // Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts.index');
         // Route::get('/contacts/{contact}', [AdminContactController::class, 'show'])->name('contacts.show');
         // Route::delete('/contacts/{contact}', [AdminContactController::class, 'destroy'])->name('contacts.destroy');
         // Route::patch('/contacts/{contact}/read', [AdminContactController::class, 'markAsRead'])->name('contacts.read');
+        Route::patch('/contacts/{contact}/read', [AdminContact::class, 'markAsRead'])->name('contacts.read');
+
 
         Route::get('/church-profile', [ChurchProfileController::class, 'edit'])->name('church-profile.edit');
         Route::put('/church-profile', [ChurchProfileController::class, 'update'])->name('church-profile.update');

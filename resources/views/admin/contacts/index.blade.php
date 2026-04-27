@@ -1,175 +1,129 @@
 @extends('layouts.admin.app')
 
-@section('title', 'Pendaftaran & Pesan')
-@section('header', 'Daftar Minat Program')
-
 @section('content')
+<div class="container-fluid px-4 py-4">
+    {{-- Header Section --}}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">Pesan Masuk Jemaat</h2>
+            <p class="text-muted small">Total {{ $totalUnread }} pesan belum dibaca perlu tindak lanjut.</p>
+        </div>
+    </div>
 
-@php use Illuminate\Support\Str; @endphp
+    {{-- Nav Tabs Section --}}
+    <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            {{-- Menggunakan nav-link agar kompatibel dengan JS Bootstrap --}}
+            <button class="nav-link btn btn-outline-dark rounded-pill active position-relative" 
+                    id="pills-pendidikan-tab" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#pills-pendidikan" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="pills-pendidikan" 
+                    aria-selected="true">
+                Pendidikan 
+                @if($unreadPendidikan > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ $unreadPendidikan }}
+                    </span>
+                @endif
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link btn btn-outline-dark rounded-pill position-relative" 
+                    id="pills-ibadah-tab" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#pills-ibadah" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="pills-ibadah" 
+                    aria-selected="false">
+                Ibadah
+                @if($unreadIbadah > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ $unreadIbadah }}
+                    </span>
+                @endif
+            </button>
+        </li>
+    </ul>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <p class="text-muted mb-0">Kelola pendaftar program pendidikan dan ibadah</p>
-    </div>
-    <div class="d-flex gap-2">
-        <span class="badge bg-danger p-2 shadow-sm">
-            {{ $totalUnread ?? 0 }} Belum Diproses
-        </span>
-    </div>
-</div>
+    {{-- Tab Content Section --}}
+    <div class="tab-content" id="pills-tabContent">
+        {{-- Pane Pendidikan --}}
+        <div class="tab-pane fade show active" id="pills-pendidikan" role="tabpanel" aria-labelledby="pills-pendidikan-tab">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="table-responsive p-3">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Pengirim</th>
+                                <th>Kontak</th>
+                                <th>Pesan Singkat</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($contactPendidikan as $item)
+                            <tr class="{{ $item->status == 'unread' ? 'fw-bold bg-light' : '' }}">
+                                <td>{{ $item->name }}</td>
+                                <td>{{ $item->phone }}</td>
+                                <td class="text-truncate" style="max-width: 200px;">{{ $item->message }}</td>
+                                <td>
+                                    <span class="badge {{ $item->status == 'unread' ? 'bg-danger' : 'bg-secondary' }}">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.contacts.show', $item->id) }}" class="btn btn-dark btn-sm rounded-3">Buka</a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="5" class="text-center py-4 text-muted">Belum ada pesan pendidikan.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-{{-- Tabel Pendidikan --}}
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i> Program Pendidikan (PAUD)</h5>
-        <span class="badge bg-white text-primary">{{ $unreadPendidikan ?? 0 }} Baru</span>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th width="50">Status</th>
-                    <th>Orang Tua</th>
-                    <th>Kontak (WA)</th>
-                    <th>Nama Anak</th>
-                    <th>Tanggal Daftar</th>
-                    <th class="text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($contactsPendidikan as $contact)
-                <tr class="{{ $contact->status === 'unread' ? 'table-light fw-bold' : '' }}">
-                    <td class="text-center">
-                        @if($contact->status === 'unread')
-                            <span class="badge rounded-pill bg-warning text-dark">Baru</span>
-                        @else
-                            <i class="bi bi-check2-all text-success fs-5"></i>
-                        @endif
-                    </td>
-                    <td>{{ $contact->name }}</td>
-                    <td>
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $contact->phone) }}" target="_blank" class="text-decoration-none text-success">
-                            <i class="bi bi-whatsapp"></i> {{ $contact->phone }}
-                        </a>
-                    </td>
-                    <td>{{ $contact->child_name ?: '-' }}</td>
-                    <td><small class="text-muted">{{ $contact->created_at->translatedFormat('d M Y, H:i') }}</small></td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <a href="{{ route('admin.contacts.show', $contact) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            {{-- Modifikasi Form Hapus --}}
-                            <form action="{{ route('admin.contacts.destroy', $contact) }}" method="POST" class="d-inline form-delete">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="6" class="text-center py-4 text-muted">Belum ada pendaftaran Pendidikan.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
-
-{{-- Tabel Ibadah --}}
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-book me-2"></i> Program Ibadah</h5>
-        <span class="badge bg-white text-success">{{ $unreadIbadah ?? 0 }} Baru</span>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th width="50">Status</th>
-                    <th>Nama</th>
-                    <th>Kontak (WA)</th>
-                    <th>Keterangan</th>
-                    <th>Tanggal Daftar</th>
-                    <th class="text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($contactsIbadah as $contact)
-                <tr class="{{ $contact->status === 'unread' ? 'table-light fw-bold' : '' }}">
-                    <td class="text-center">
-                        @if($contact->status === 'unread')
-                            <span class="badge rounded-pill bg-warning text-dark">Baru</span>
-                        @else
-                            <i class="bi bi-check2-all text-success fs-5"></i>
-                        @endif
-                    </td>
-                    <td>{{ $contact->name }}</td>
-                    <td>
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $contact->phone) }}" target="_blank" class="text-decoration-none text-success">
-                            <i class="bi bi-whatsapp"></i> {{ $contact->phone }}
-                        </a>
-                    </td>
-                    <td>{{ Str::limit($contact->message, 30) ?: '-' }}</td>
-                    <td><small class="text-muted">{{ $contact->created_at->translatedFormat('d M Y, H:i') }}</small></td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <a href="{{ route('admin.contacts.show', $contact) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <form action="{{ route('admin.contacts.destroy', $contact) }}" method="POST" class="d-inline form-delete">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="6" class="text-center py-4 text-muted">Belum ada pendaftaran Ibadah.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        {{-- Pane Ibadah --}}
+        <div class="tab-pane fade" id="pills-ibadah" role="tabpanel" aria-labelledby="pills-ibadah-tab">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="table-responsive p-3">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Pengirim</th>
+                                <th>Pesan</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($contactIbadah as $item)
+                            <tr class="{{ $item->status == 'unread' ? 'fw-bold bg-light' : '' }}">
+                                <td>{{ $item->name }}</td>
+                                <td class="text-truncate" style="max-width: 300px;">{{ $item->message }}</td>
+                                <td>
+                                    <span class="badge {{ $item->status == 'unread' ? 'bg-danger' : 'bg-secondary' }}">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.contacts.show', $item->id) }}" class="btn btn-dark btn-sm rounded-3">Buka</a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Belum ada pesan ibadah.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-{{-- SCRIPT SWEETALERT2 --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const deleteButtons = document.querySelectorAll('.btn-delete');
-        
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                const form = this.closest('.form-delete');
-                
-                Swal.fire({
-                    title: 'Yakin ingin menghapus?',
-                    text: "Data ini akan dihapus secara permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e3342f', // Merah
-                    cancelButtonColor: '#3490dc', // Biru
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    });
-</script>
-
-<style>
-    .table-hover tbody tr:hover { background-color: #f8f9fa; }
-    .badge { font-weight: 500; }
-    .card-header { border-radius: 0.375rem 0.375rem 0 0 !important; }
-</style>
 @endsection

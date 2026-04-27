@@ -11,28 +11,18 @@ class ContactController extends Controller
     public function index()
     {
         // Pisahkan data berdasarkan kategori
-        $contactsPendidikan = Contact::where('category', 'pendidikan')
-            ->latest()
-            ->paginate(10, ['*'], 'pendidikan_page');
-
-        $contactsIbadah = Contact::where('category', 'ibadah')
-            ->latest()
-            ->paginate(10, ['*'], 'ibadah_page');
-
-        // Hitung unread per kategori
-        $unreadPendidikan = Contact::where('category', 'pendidikan')
-            ->where('status', 'unread')
-            ->count();
-
-        $unreadIbadah = Contact::where('category', 'ibadah')
-            ->where('status', 'unread')
-            ->count();
-
+        // 1. Ambil semua data kontak berdasarkan kategori untuk ditampilkan di tabel/list
+        $contactPendidikan = Contact::where('category', 'pendidikan')->latest()->get();
+        $contactIbadah = Contact::where('category', 'ibadah')->latest()->get();
+        // 2. Hitung jumlah yang belum dibaca (Kode Anda yang sudah ada)
+        $unreadPendidikan = $contactPendidikan->where('status', 'unread')->count();
+        $unreadIbadah = $contactIbadah->where('status', 'unread')->count();
         $totalUnread = $unreadPendidikan + $unreadIbadah;
 
+        // 3. Sekarang semua variabel sudah ada dan bisa dimasukkan ke compact()
         return view('admin.contacts.index', compact(
-            'contactsPendidikan',
-            'contactsIbadah',
+            'contactPendidikan',
+            'contactIbadah',
             'unreadPendidikan',
             'unreadIbadah',
             'totalUnread'

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Program;
 use App\Models\Gallery;
+use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +56,28 @@ class ProgramController extends Controller
         // Mengirim data ke view detail (pastikan file view ini sudah Anda buat)
         return view('programs.show', compact('program', 'galleries'));
     }
+
+
+    public function apply(Request $request) {
+    $validated = $request->validate([
+        'parent_name' => 'required',
+        'whatsapp' => 'required',
+        'email' => 'email',
+        'student_name' => 'required',
+    ]);
+
+    // Data ini akan masuk ke kategori 'pendidikan' di dashboard admin
+    Contact::create([
+        'name' => $request->parent_name,
+        'phone' => $request->whatsapp,
+        'email' => $request->email,
+        'message' => "Minat Program Pendidikan untuk anak: " . $request->student_name,
+        'category' => 'pendidikan',
+        'status' => 'unread'
+    ]);
+
+    return back()->with('success', 'Informasi minat telah dikirim.');
+}
 
     //USER METHODS (TAMBAHAN)
 

@@ -9,10 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
+public function up(): void
 {
     Schema::table('contacts', function (Blueprint $table) {
-        $table->boolean('status', 'unread')->default(false);
+        if (!Schema::hasColumn('contacts', 'status')) {
+            $table->boolean('status')->default(false);
+        }
     });
 }
 

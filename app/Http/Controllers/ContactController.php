@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -18,28 +19,44 @@ class ContactController extends Controller
 
     //Simpan Pesan dari Form Publik
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'child_name' => 'nullable|string|max:255',
-            'category' => 'required|in:pendidikan,ibadah',
-            'message' => 'nullable|string',
-        ]);
+{
+    // 1. Validasi dasar yang dibutuhkan semua form
+    $rules = [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone' => 'required|string|max:20',
+        'category' => 'required|in:pendidikan,ibadah,umum',
+    ];
 
-        Contact::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'child_name' => $request->child_name,
-            'category' => $request->category,
-            'message' => $request->message,
-            'status' => 'unread',
-        ]);
-
-        return back()->with('success', 'Pendaftaran berhasil dikirim!');
+    // 2. Tambahkan aturan khusus jika ini adalah pendaftaran program (Pendidikan)
+    if ($request->category == 'pendidikan') {
+        $rules['child_name'] = 'required|string|max:255'; // Wajib untuk formulir minat
+        $rules['message'] = 'nullable|string';
+    } else {
+        $rules['message'] = 'required|string'; // Wajib untuk pesan kontak umum
     }
+
+    $validated = $request->validate($rules);
+
+    // 3. Simpan hanya SATU kali ke database
+    Contact::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'phone' => $validated['phone'],
+        'child_name' => $request->child_name ?? null,
+        'category' => $validated['category'],
+        'message' => $validated['message'] ?? "Pendaftaran Program Pendidikan: " . $request->child_name,
+        'status' => 'unread',
+    ]);
+
+    // // 4. Catat aktivitas (Opsional)
+    // \App\Models\Activity::create([
+    //     'admin_id' => null, 
+    //     'description' => 'Pesan/Pendaftaran baru dari: ' . $validated['name'],
+    // ]);
+
+    return back()->with('success', 'Pesan Anda berhasil dikirim!');
+}
 
     // ==================== AREA USER (YAYASAN) ====================
 
@@ -88,4 +105,6 @@ class ContactController extends Controller
         $contact->delete();
         return redirect()->route('admin.contact.index')->with('success', 'Pesan berhasil dihapus!');
     }
+
+    
 }
