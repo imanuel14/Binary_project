@@ -56,3 +56,48 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+# Sistem Informasi Yayasan Mutiara Kasih Karunia (YMKK)
+
+Project ini merupakan sistem pengelolaan informasi terpadu untuk Yayasan Mutiara Kasih Karunia, yang mencakup manajemen data jemaat, profil organisasi, hingga portal informasi publik.
+
+---
+
+## 👥 Struktur Tim & Pembagian Kerja (Agile/Scrum)
+
+Kami menggunakan metodologi **Agile** dengan pembagian divisi yang spesifik untuk memastikan kolaborasi berjalan maksimal melalui GitHub Branching.
+
+###  Divisi 1: Core System
+| Nama | Peran | Deskripsi Tugas |
+
+| **Anggota 1 Arisman B Zai** | **Database Architect** | Merancang skema database (Migrations) & Eloquent Models. |
+| **Anggota 2 Yulius Nono & Imanuel Raubun** | **Security & Auth** | Implementasi sistem Login, Logout, dan Middleware (Role Check). |
+
+### 🛠️ Divisi 2: Admin Panel (Backend)
+| Nama | Peran | Deskripsi Tugas |
+
+| **Anggota 3 Grace A Joy** | **User Manager** | Pengembangan CRUD untuk pengelolaan akun Staff/Pengguna. |
+| **Anggota 4 Grace A Joy** | **Data Jemaat Specialist** | Pendataan jemaat dan fitur ekspor data ke Excel/PDF. |
+| **Anggota 5 Hikayat Telaumbanua** | **Organization Info** | Manajemen konten profil yayasan dan struktur organisasi. |
+
+###  Divisi 3: Staff Panel (Operational)
+| Nama | Peran | Deskripsi Tugas |
+
+| **Anggota 6 Charles** | **Dashboard Admin** | Integrasi statistik data dan grafik pada dashboard utama. |
+| **Anggota 7 Samuel Berutu** | **Staff Field Operator** | Manajemen update program kerja dan pengelolaan kontak masuk. |
+
+### Divisi 4: Public Website (Frontend)
+| Nama | Peran | Deskripsi Tugas |
+
+| **Anggota  Gerarda S P Sarangah8** | **Home & Profile UI** | Slicing UI Landing Page dan halaman profil yayasan. |
+| **Anggota 9 Elsa Gespri S** | **Media & Gallery** | Pengembangan fitur galeri foto kegiatan dan dokumentasi. |
+| **Anggota 10 Markus** | **Public Service Info** | Informasi layanan publik, jadwal kegiatan, dan pengumuman. |
+
+---
+
+## Teknologi & Tools
+* **Framework:** Laravel 12
+* **Language:** PHP, JavaScript, Blade
+* **Database:** MySQL
+* **Version Control:** Git & GitHub
